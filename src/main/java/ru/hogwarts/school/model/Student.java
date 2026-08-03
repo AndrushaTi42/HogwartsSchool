@@ -11,20 +11,27 @@ public class Student {
 
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
 
     private String name;
     private Integer age;
     private Integer course;
+
+
+    public Student() {
+    }
+
+    public Student(String name, Integer age, Integer course) {
+        this.name = name;
+        this.age = age;
+        this.course = course;
+    }
 
     public Student(Long id, String name, Integer age, Integer course) {
         this.id = id;
         this.name = name;
         this.age = age;
         this.course = course;
-    }
-
-    public Student() {
     }
 
     public void setId(Long id) {

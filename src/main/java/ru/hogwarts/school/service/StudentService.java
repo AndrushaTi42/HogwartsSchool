@@ -2,59 +2,50 @@ package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 
 @Service
 public class StudentService {
-    private long lastId;
-    private Map<Long, Student> students = new HashMap<>();
+    private final StudentRepository studentRepository;
+
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
     public Student createStudent(Student student) {
-        student.setId(++lastId);
-        students.put(lastId, student);
-        return student;
+        return studentRepository.save(student);
     }
 
     public Student findStudent(Long id) {
-        return students.get(id);
+        return studentRepository.findById(id).orElse(null);
     }
 
     public Student editStudent(Student student) {
-        if (students.containsKey(student.getId())) {
-            students.put(student.getId(), student);
-            return student;
-        }
-        return null;
+        return studentRepository.save(student);
     }
 
-    public Student delStudent(Long id) {
-        return students.remove(id);
-    }
-
-    public Collection<Student> getAll() {
-        return students.values();
+    public void delStudent(Long id) {
+        studentRepository.deleteById(id);
     }
 
     //фильтр по возрасту и курсу
-    public Collection<Student> findByAgeAndCourse(int age, int course) {
-        return students.values().stream()
-                .filter(student -> student.getAge() == age)
-                .filter(student -> student.getCourse() == course)
-                .toList(); // Соберет отфильтрованных студентов в список
+    public Collection<Student> findByAgeAndCourse(Integer age, Integer course) {
+        return studentRepository.findByAgeAndCourse(age, course);
     }
 
     //перевод на следующий курс и удаление выпускников
-    public Collection<Student> advanceCourses() {
-        //увеличиваем курс
-        for (Student student : students.values()) {
-            int newCourse = student.getCourse();
-            student.setCourse(++newCourse);
+    public void advanceCourses() {
+        for (Student student : studentRepository.findAll()) {
+            int newCourse = student.getCourse() + 1;
+            if (newCourse > 7) {
+                studentRepository.delete(student);
+            } else {
+                student.setCourse(newCourse);
+                studentRepository.save(student);
+            }
         }
-
-        students.values().removeIf(student -> student.getCourse() > 7);
-        return students.values();
     }
 }

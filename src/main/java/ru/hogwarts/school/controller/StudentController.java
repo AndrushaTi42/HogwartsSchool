@@ -1,6 +1,5 @@
 package ru.hogwarts.school.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Student;
@@ -34,7 +33,7 @@ public class StudentController {
         if (result.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(studentService.getAll());
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping  //POST http://localhost:8080/student
@@ -42,23 +41,20 @@ public class StudentController {
         return studentService.createStudent(student);
     }
 
-    @PostMapping("/advance-course")
-    public ResponseEntity<Collection<Student>> advanceCourse() {
-        Collection<Student> result = studentService.advanceCourses();
-        return ResponseEntity.ok(result);
+    @PostMapping("/advance-course") //POST http://localhost:8080/student/advance-course
+    public ResponseEntity advanceCourse() {
+        studentService.advanceCourses();
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping //PUT http://localhost:8080/student
     public ResponseEntity<Student> editStudent(@RequestBody Student student) {
-        Student foundStudent = studentService.editStudent(student);
-        if (foundStudent == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(foundStudent);
+        return ResponseEntity.ok(studentService.editStudent(student));
     }
 
     @DeleteMapping("/{id}") //DELETE http://localhost:8080/student/11
-    public Student deleteStudent(@PathVariable Long id) {
-        return studentService.delStudent(id);
+    public ResponseEntity deleteStudent(@PathVariable Long id) {
+        studentService.delStudent(id);
+        return ResponseEntity.ok().build();
     }
 }
