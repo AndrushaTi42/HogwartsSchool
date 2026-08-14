@@ -31,11 +31,13 @@ public class FacultyService {
         facultyRepository.deleteById(id);
     }
 
-    public Collection<Faculty> getAll() {
-        return facultyRepository.findAll();
+    public Collection<Faculty> findByNameAndColorFields(String name, String color) {
+        return facultyRepository.findByNameAndColorFields(name, color);
     }
 
-    public Collection<Faculty> findByColor(String color) {
-        return facultyRepository.findByColor(color);
-    }
+//    public Collection<Faculty> findByNameAndColorFields(String name, String color) {
+//        String searchName = (name == null || name.isBlank()) ? "" : name;
+//        String searchColor = (color == null || color.isBlank()) ? "" : color;
+//        return facultyRepository.findByNameAndColorFields(searchName, searchColor);
+//    }
 }

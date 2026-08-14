@@ -36,6 +36,11 @@ public class StudentService {
         return studentRepository.findByAgeAndCourse(age, course);
     }
 
+    //фильтр по возрасту (от, до)
+    public Collection<Student> findByAgeBetween(Integer min, Integer max) {
+        return studentRepository.findByAgeBetween(min, max);
+    }
+
     //перевод на следующий курс и удаление выпускников
     public void advanceCourses() {
         for (Student student : studentRepository.findAll()) {

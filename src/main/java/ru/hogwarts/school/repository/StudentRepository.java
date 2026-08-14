@@ -13,4 +13,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
             "(:course IS NULL OR s.course = :course)")
     Collection<Student> findByAgeAndCourse(Integer age, Integer course);
 
+    Collection<Student> findByAgeBetween(Integer min, Integer max);
 }
