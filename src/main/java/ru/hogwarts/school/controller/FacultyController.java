@@ -28,7 +28,7 @@ public class FacultyController {
         return ResponseEntity.ok(faculty);
     }
 
-    @GetMapping //GET http://localhost:8080/faculty/name=a&colore=red
+    @GetMapping //GET http://localhost:8080/faculty?name=a&color=red
     public ResponseEntity<Collection<Faculty>> getFacultyForNameOrColor(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String color) {
