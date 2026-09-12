@@ -6,6 +6,7 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @RestController
@@ -76,5 +77,24 @@ public class StudentController {
     public ResponseEntity deleteStudent(@PathVariable Long id) {
         studentService.delStudent(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/count-students")
+    public ResponseEntity<Long> getCountStudents() {
+        return ResponseEntity.ok(studentService.getCountStudents());
+    }
+
+    @GetMapping("/average-age-students")
+    public ResponseEntity<BigDecimal> getAverageAgeStudents() {
+        return ResponseEntity.ok(studentService.getAverageAgeStudents());
+    }
+
+    @GetMapping("/last-students")
+    public ResponseEntity<Collection<Student>> getLastStudents() {
+        Collection<Student> results = studentService.getLastStudents();
+        if (results.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(results);
     }
 }

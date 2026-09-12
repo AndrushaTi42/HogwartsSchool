@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 
 
@@ -52,5 +53,17 @@ public class StudentService {
                 studentRepository.save(student);
             }
         }
+    }
+
+    public Long getCountStudents() {
+        return studentRepository.getCountStudents();
+    }
+
+    public BigDecimal getAverageAgeStudents() {
+        return studentRepository.getAverageAgeStudents();
+    }
+
+    public Collection<Student> getLastStudents() {
+        return studentRepository.getLastStudents();
     }
 }
