@@ -11,8 +11,10 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String name;
-    private Integer age;
+
+    private Integer age = 20;
     private Integer course;
 
     @ManyToOne
