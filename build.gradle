@@ -22,8 +22,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 
-    // 2. Локальная база данных
+    // 2. База данных и миграции
     runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-liquibase'
+
 
     // 3. Документация API (Swagger UI + Scalar)
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0'
