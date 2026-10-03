@@ -7,6 +7,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
@@ -39,7 +40,8 @@ public class StudentControllerTest {
     public void getStudentNotFoundMockTest() throws Exception {
         long nonExistingId = 9999L;
 
-        when(studentService.findStudent(nonExistingId)).thenReturn(null);
+        when(studentService.findStudent(nonExistingId))
+                .thenThrow(new StudentNotFoundException(nonExistingId));
 
         mockMvc.perform(get("/student/" + nonExistingId)
                         .accept(MediaType.APPLICATION_JSON))

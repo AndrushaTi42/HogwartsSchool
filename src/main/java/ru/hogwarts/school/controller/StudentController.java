@@ -13,7 +13,7 @@ import java.util.*;
 @RequestMapping("/student")
 public class StudentController {
 
-    private StudentService studentService;
+    private final StudentService studentService;
 
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
@@ -21,17 +21,13 @@ public class StudentController {
 
     @GetMapping("/{id}") //GET http://localhost:8080/student/11
     public ResponseEntity<Student> getStudentInfo(@PathVariable Long id) {
-        Student student = studentService.findStudent(id);
-        if (student == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(student);
+        return ResponseEntity.ok(studentService.findStudent(id));
     }
 
     @GetMapping("/{id}/faculty") // GET http://localhost:8080/student/1/faculty
     public ResponseEntity<Faculty> getFacultyByStudentId(@PathVariable Long id) {
         Student student = studentService.findStudent(id);
-        if (student == null || student.getFaculty() == null) {
+        if (student.getFaculty() == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(student.getFaculty());

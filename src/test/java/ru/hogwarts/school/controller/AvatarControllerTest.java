@@ -13,6 +13,7 @@ import ru.hogwarts.school.service.StudentService;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -84,7 +85,7 @@ public class AvatarControllerTest {
         fakeAvatar.setMediaType(MediaType.IMAGE_PNG_VALUE);
         fakeAvatar.setData(fakeImageBytes);
 
-        when(avatarService.findAvatar(studentId)).thenReturn(fakeAvatar);
+        when(avatarService.findAvatar(studentId)).thenReturn(Optional.of(fakeAvatar));
 
         mockMvc.perform(get("/avatar/" + studentId + "/data"))
                 .andExpect(status().isOk())
@@ -104,7 +105,7 @@ public class AvatarControllerTest {
         fakeAvatar.setFileSize(fileContent.getBytes().length);
         fakeAvatar.setFilePath(actualPath);
 
-        when(avatarService.findAvatar(studentId)).thenReturn(fakeAvatar);
+        when(avatarService.findAvatar(studentId)).thenReturn(Optional.of(fakeAvatar));
 
         mockMvc.perform(get("/avatar/" + studentId))
                 .andExpect(status().isOk())

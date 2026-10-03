@@ -1,6 +1,5 @@
 package ru.hogwarts.school.controller;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
@@ -21,11 +20,7 @@ public class FacultyController {
 
     @GetMapping("/{id}") //GET http://localhost:8080/faculty/11
     public ResponseEntity<Faculty> getFacultyInfo(@PathVariable Long id) {
-        Faculty faculty = facultyService.findFaculty(id);
-        if (faculty == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(faculty);
+        return ResponseEntity.ok(facultyService.findFaculty(id));
     }
 
     @GetMapping //GET http://localhost:8080/faculty?name=a&color=red
@@ -42,7 +37,7 @@ public class FacultyController {
     @GetMapping("/{id}/students") // GET http://localhost:8080/faculty/2/students
     public ResponseEntity<Collection<Student>> getStudentsByFacultyId(@PathVariable Long id) {
         Faculty faculty = facultyService.findFaculty(id);
-        if (faculty == null || faculty.getStudents() == null) {
+        if (faculty.getStudents() == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(faculty.getStudents());
@@ -56,9 +51,6 @@ public class FacultyController {
     @PutMapping //PUT http://localhost:8080/faculty
     public ResponseEntity<Faculty> editFaculty(@RequestBody Faculty faculty) {
         Faculty foundFaculty = facultyService.editFaculty(faculty);
-        if (foundFaculty == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(foundFaculty);
     }
 

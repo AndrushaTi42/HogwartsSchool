@@ -14,7 +14,7 @@ public class Student {
     @Column(nullable = false, unique = true)
     private String name;
 
-    private Integer age = 20;
+    private Integer age;
     private Integer course;
 
     @ManyToOne
