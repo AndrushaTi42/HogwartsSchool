@@ -1,60 +1,133 @@
 package ru.hogwarts.school.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.StudentRepository;
 
+import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
 
 @Service
 public class StudentService {
-    private long lastId;
-    private Map<Long, Student> students = new HashMap<>();
+
+    private static final Logger logger = LoggerFactory.getLogger(StudentService.class);
+
+    private final StudentRepository studentRepository;
+
+    private List<Long> extractIds(Collection<Student> students) {
+        return students.stream().map(Student::getId).toList();
+    }
+
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
     public Student createStudent(Student student) {
-        student.setId(++lastId);
-        students.put(lastId, student);
-        return student;
+        logger.info("Was invoked method for create student");
+        return studentRepository.save(student);
     }
 
     public Student findStudent(Long id) {
-        return students.get(id);
+        logger.info("Was invoked method for find student");
+        Student student = studentRepository.findById(id).orElse(null);
+        if (student == null) {
+            logger.warn("Student with id = {} was not found", id);
+            throw new StudentNotFoundException(id);
+        } else {
+            logger.debug("Found student: {}", student);
+            return student;
+        }
     }
 
     public Student editStudent(Student student) {
-        if (students.containsKey(student.getId())) {
-            students.put(student.getId(), student);
-            return student;
+        logger.info("Was invoked method for edit student");
+        if (!studentRepository.existsById(student.getId())) {
+            logger.warn("Student with id = {} was not found for editing", student.getId());
+            throw new StudentNotFoundException(student.getId());
         }
-        return null;
+        Student updated = studentRepository.save(student);
+        logger.debug("Student with id = {} was updated", updated.getId());
+        return updated;
     }
 
-    public Student delStudent(Long id) {
-        return students.remove(id);
-    }
-
-    public Collection<Student> getAll() {
-        return students.values();
+    public void delStudent(Long id) {
+        logger.info("Was invoked method for delete student");
+        Student student = studentRepository.findById(id).orElse(null);
+        if (student == null) {
+            logger.warn("Student with id = {} was not found", id);
+            return;
+        }
+        studentRepository.deleteById(id);
+        logger.debug("Student with id = {} was deleted", id);
     }
 
     //фильтр по возрасту и курсу
-    public Collection<Student> findByAgeAndCourse(int age, int course) {
-        return students.values().stream()
-                .filter(student -> student.getAge() == age)
-                .filter(student -> student.getCourse() == course)
-                .toList(); // Соберет отфильтрованных студентов в список
+    public Collection<Student> findByAgeAndCourse(Integer age, Integer course) {
+        logger.info("Was invoked method for find students by age and course");
+        Collection<Student> students = studentRepository.findByAgeAndCourse(age, course);
+        if (students.isEmpty()) {
+            logger.warn("Student with age = {}, and course = {} was not found", age, course);
+        } else {
+            logger.debug("Found students with ids: {}", extractIds(students));
+        }
+        return students;
+    }
+
+    //фильтр по возрасту (от, до)
+    public Collection<Student> findByAgeBetween(Integer min, Integer max) {
+        logger.info("Was invoked method for find students by age range");
+        Collection<Student> students = studentRepository.findByAgeBetween(min, max);
+        if (students.isEmpty()) {
+            logger.warn("Students with age between {} and {} were not found", min, max);
+        } else {
+            logger.debug("Found students: {}", extractIds(students));
+        }
+        return students;
     }
 
     //перевод на следующий курс и удаление выпускников
-    public Collection<Student> advanceCourses() {
-        //увеличиваем курс
-        for (Student student : students.values()) {
-            int newCourse = student.getCourse();
-            student.setCourse(++newCourse);
+    public void advanceCourses() {
+        logger.info("Was invoked method for advance courses");
+        for (Student student : studentRepository.findAll()) {
+            int newCourse = student.getCourse() + 1;
+            if (newCourse > 7) {
+                logger.warn("Student {} reached course limit and will be deleted", student.getId());
+                studentRepository.delete(student);
+            } else {
+                logger.debug("Student {} advanced to course {}", student.getId(), newCourse);
+                student.setCourse(newCourse);
+                studentRepository.save(student);
+            }
         }
+    }
 
-        students.values().removeIf(student -> student.getCourse() > 7);
-        return students.values();
+    public Long getCountStudents() {
+        logger.info("Was invoked method for get count of students");
+        Long count = studentRepository.getCountStudents();
+        logger.debug("Total students count fetched: {}", count);
+        return count;
+    }
+
+    public BigDecimal getAverageAgeStudents() {
+        logger.info("Was invoked method for get average age students");
+        BigDecimal averageAge = studentRepository.getAverageAgeStudents();
+        logger.debug("Average age students is: {}", averageAge);
+        return averageAge;
+    }
+
+    public Collection<Student> getLastStudents() {
+        logger.info("Was invoked method for get last students");
+        Collection<Student> students = studentRepository.getLastStudents();
+        if (students.isEmpty()) {
+            logger.warn("Students were not found");
+        } else {
+            logger.debug("Found last students: {}", extractIds(students));
+        }
+        return students;
     }
 }

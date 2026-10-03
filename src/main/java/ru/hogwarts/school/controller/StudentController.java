@@ -1,18 +1,19 @@
 package ru.hogwarts.school.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @RestController
 @RequestMapping("/student")
 public class StudentController {
 
-    private StudentService studentService;
+    private final StudentService studentService;
 
     public StudentController(StudentService studentService) {
         this.studentService = studentService;
@@ -20,11 +21,26 @@ public class StudentController {
 
     @GetMapping("/{id}") //GET http://localhost:8080/student/11
     public ResponseEntity<Student> getStudentInfo(@PathVariable Long id) {
+        return ResponseEntity.ok(studentService.findStudent(id));
+    }
+
+    @GetMapping("/{id}/faculty") // GET http://localhost:8080/student/1/faculty
+    public ResponseEntity<Faculty> getFacultyByStudentId(@PathVariable Long id) {
         Student student = studentService.findStudent(id);
-        if (student == null) {
+        if (student.getFaculty() == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(student);
+        return ResponseEntity.ok(student.getFaculty());
+    }
+
+    @GetMapping("/age-between") // GET http://localhost:8080/student/age-between?max=10&min=15
+    public ResponseEntity<Collection<Student>> getStudentForAge(@RequestParam Integer max,
+                                                                @RequestParam Integer min) {
+        Collection<Student> results = studentService.findByAgeBetween(min, max);
+        if (results.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(results);
     }
 
     @GetMapping // GET http://localhost:8080/student?age=11
@@ -34,7 +50,7 @@ public class StudentController {
         if (result.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(studentService.getAll());
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping  //POST http://localhost:8080/student
@@ -42,23 +58,39 @@ public class StudentController {
         return studentService.createStudent(student);
     }
 
-    @PostMapping("/advance-course")
-    public ResponseEntity<Collection<Student>> advanceCourse() {
-        Collection<Student> result = studentService.advanceCourses();
-        return ResponseEntity.ok(result);
+    @PostMapping("/advance-course") //POST http://localhost:8080/student/advance-course
+    public ResponseEntity advanceCourse() {
+        studentService.advanceCourses();
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping //PUT http://localhost:8080/student
     public ResponseEntity<Student> editStudent(@RequestBody Student student) {
-        Student foundStudent = studentService.editStudent(student);
-        if (foundStudent == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(foundStudent);
+        return ResponseEntity.ok(studentService.editStudent(student));
     }
 
     @DeleteMapping("/{id}") //DELETE http://localhost:8080/student/11
-    public Student deleteStudent(@PathVariable Long id) {
-        return studentService.delStudent(id);
+    public ResponseEntity deleteStudent(@PathVariable Long id) {
+        studentService.delStudent(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/count-students")
+    public ResponseEntity<Long> getCountStudents() {
+        return ResponseEntity.ok(studentService.getCountStudents());
+    }
+
+    @GetMapping("/average-age-students")
+    public ResponseEntity<BigDecimal> getAverageAgeStudents() {
+        return ResponseEntity.ok(studentService.getAverageAgeStudents());
+    }
+
+    @GetMapping("/last-students")
+    public ResponseEntity<Collection<Student>> getLastStudents() {
+        Collection<Student> results = studentService.getLastStudents();
+        if (results.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(results);
     }
 }
